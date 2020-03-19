@@ -3,7 +3,7 @@ import { Board } from './components/board';
 import { BoardStore } from './components/board_store';
 import { BoardPainter } from './components/board_painter';
 import { config } from './config/maze_config';
-import { map } from './maps/map_1';
+import { map } from './maps/generated_map';
 
 import styles from './App.css';
 
