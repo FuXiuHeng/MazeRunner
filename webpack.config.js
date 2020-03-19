@@ -37,16 +37,11 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.css$/,
+                test: /\.css$/i,
+                include: path.join(__dirname, 'src/'),
                 use: [
                     {
                         loader: 'style-loader',
-                        options: {
-                          esModule: true,
-                        }
-                    },
-                    {
-                        loader: 'css-modules-typescript-loader',
                     },
                     {
                         loader: 'css-loader',

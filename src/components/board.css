@@ -1,0 +1,20 @@
+.board {
+  background-color: white;
+  display: block;
+}
+
+.winBanner {
+  margin-bottom: 16px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 48px;
+  font-weight: bold;
+  padding: 8px 0px;
+  color: #222222;
+  background-color: lightyellow;
+  opacity: 1;
+}
+
+.winBanner.hidden {
+  opacity: 0;
+}
