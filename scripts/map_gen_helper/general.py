@@ -1,8 +1,6 @@
 import random
 from . import constants
 
-addToFrontier = True
-
 # Randomise a ending position along the side walls
 # but not the corners
 def generateRandomEnd(width, height): 
@@ -44,6 +42,25 @@ def getAdjacentCoords(curCoord):
     { 'row': curCoord['row'], 'col': curCoord['col'] - 1 },
     { 'row': curCoord['row'], 'col': curCoord['col'] + 1 },
   ]
+  return adjCoords
+
+# Note: curCoord and prevCoord must be adjacent to each other!!
+def getForwardAdjacentCoords(curCoord, prevCoord):
+  if curCoord['row'] == prevCoord['row']: # Same row
+    colDiff = curCoord['col'] - prevCoord['col']
+    adjCoords = [
+      { 'row': curCoord['row'] - 1, 'col': curCoord['col'] },
+      { 'row': curCoord['row'] + 1, 'col': curCoord['col'] },
+      { 'row': curCoord['row'], 'col': curCoord['col'] + colDiff },
+    ]
+  else:
+    rowDiff = curCoord['row'] - prevCoord['row']
+    adjCoords = [
+      { 'row': curCoord['row'], 'col': curCoord['col'] - 1 },
+      { 'row': curCoord['row'], 'col': curCoord['col'] + 1 },
+      { 'row': curCoord['row'] + rowDiff, 'col': curCoord['col'] },
+    ]
+
   return adjCoords
 
 def getCell(grid, coord):

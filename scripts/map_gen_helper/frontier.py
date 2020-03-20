@@ -16,11 +16,11 @@ def expandFrontier(grid, frontier, curCoord):
     # Discard cell if cell is already assigned a value
     if general.getCell(grid, coordA) != constants.CELL_NONE: continue
     # Discard cell if adjacent to another path (that is not the current cell)
-    adjAdjCoords = general.getAdjacentCoords(coordA)
+    adjAdjCoords = general.getForwardAdjacentCoords(coordA, curCoord)
     addToFrontier = True
 
     for coordB in adjAdjCoords:
-      if coordB == curCoord or general.isOnOrOutOfBounds(coordB, width, height):
+      if general.isOnOrOutOfBounds(coordB, width, height):
         continue
       elif general.getCell(grid, coordB) == constants.CELL_PATH:
         general.setCell(grid, coordA, constants.CELL_WALL)
