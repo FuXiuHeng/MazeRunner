@@ -7,7 +7,8 @@
   "author": "Fu Xiu Heng <fuxiu@canva.com>",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --hot --history-api-fallback"
+    "start": "webpack-dev-server --hot --history-api-fallback",
+    "gen:map": "python3 scripts/map_generator.py"
   },
   "dependencies": {
     "@types/classnames": "^2.2.7",

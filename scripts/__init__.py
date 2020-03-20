@@ -1,1 +1,1 @@
-__all__ = ["map_generator_helper"]
+__all__ = ["map_generator"]

@@ -1,12 +1,7 @@
 import random
+from . import constants
 
 addToFrontier = True
-# Map type constants
-CELL_NONE = 'X' # Not yet decided what cell value to take on
-CELL_START = 'S'
-CELL_END = 'E'
-CELL_WALL = 'W'
-CELL_PATH = ' '
 
 # Randomise a ending position along the side walls
 # but not the corners
@@ -21,36 +16,6 @@ def generateRandomEnd(width, height):
   else: # Right
     endCoord = { 'row': random.randrange(1, height - 1), 'col': width - 1 }
   return endCoord
-
-# Based on the current path cell, expand the frontier by considering
-# the four adjacent cells.
-def expandFrontier(grid, frontier, curCoord):
-  adjCoords = getAdjacentCoords(curCoord)
-
-  height = getGridHeight(grid)
-  width = getGridWidth(grid)
-
-  for coordA in adjCoords:
-    # Discard cell if out of bounds
-    # Discard cell if along the map sides
-    if isOnOrOutOfBounds(coordA, width, height): continue
-    # Discard cell if cell is already assigned a value
-    if getCell(grid, coordA) != CELL_NONE: continue
-    # Discard cell if adjacent to another path (that is not the current cell)
-    adjAdjCoords = getAdjacentCoords(coordA)
-    addToFrontier = True
-
-    for coordB in adjAdjCoords:
-      if coordB == curCoord or isOnOrOutOfBounds(coordB, width, height):
-        continue
-      elif getCell(grid, coordB) == CELL_PATH:
-        setCell(grid, coordA, CELL_WALL)
-        addToFrontier = False
-        break
-    
-    if addToFrontier: frontier.append(coordA)
-
-  return
 
 def getGridHeight(grid):
   return len(grid)
@@ -91,13 +56,23 @@ def printGrid(grid):
   for row in grid:
     print(row)
 
+# Replaces all the CELL_NONE values in the grid with CELL_WALL
 def fillGridWalls(grid):
   height = getGridHeight(grid)
   width = getGridWidth(grid)
   for row in range(height):
     for col in range(width):
-      if grid[row][col] == CELL_NONE:
-        grid[row][col] = CELL_WALL
+      if grid[row][col] == constants.CELL_NONE:
+        grid[row][col] = constants.CELL_WALL
+
+def setRandomPlayerCoord(grid):
+  height = getGridHeight(grid)
+  width = getGridWidth(grid)
+  for row in range(height):
+    for col in range(width):
+      if grid[row][col] == constants.CELL_PATH:
+        grid[row][col] = constants.CELL_START
+        return
 
 tsTemplate = """
 import {{ Map }} from 'src/maps/map_types';
@@ -108,15 +83,6 @@ export const map: Map = {{
   grid: {},
 }}
 """
-
-def setRandomPlayerCoord(grid):
-  height = getGridHeight(grid)
-  width = getGridWidth(grid)
-  for row in range(height):
-    for col in range(width):
-      if grid[row][col] == CELL_PATH:
-        grid[row][col] = CELL_START
-        return
 
 def writeToTSFile(grid, outFile):
   height = getGridHeight(grid)

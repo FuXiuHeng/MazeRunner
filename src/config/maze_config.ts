@@ -8,7 +8,7 @@ export type Config = {
 };
 
 export const config: Config = {
-  gridSize: 20, // pixels
+  gridSize: 10, // pixels
   baseColor: '#ffffff',
   wallColor: '#000000',
   startColor: '#00ff00',
