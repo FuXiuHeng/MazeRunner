@@ -1,6 +1,26 @@
 import random
 from . import constants
 
+def initialiseGrid(width, height):
+  grid = []
+  for row in range(width):
+    gridRow = []
+    for col in range(height):
+      gridRow.append(createCell(
+        constants.CELL_NONE,
+        { 'row': -1, 'col': -1 },
+        -1,
+      ))
+    grid.append(gridRow)
+  return grid
+
+def createCell(value, prevCoord, distToEnd):
+  return {
+    'value': value,
+    'prevCoord': prevCoord,
+    'distToEnd': distToEnd,
+  }
+
 # Randomise a ending position along the side walls
 # but not the corners
 def generateRandomEnd(width, height): 
@@ -53,7 +73,7 @@ def getForwardAdjacentCoords(curCoord, prevCoord):
       { 'row': curCoord['row'] + 1, 'col': curCoord['col'] },
       { 'row': curCoord['row'], 'col': curCoord['col'] + colDiff },
     ]
-  else:
+  else: # Same col
     rowDiff = curCoord['row'] - prevCoord['row']
     adjCoords = [
       { 'row': curCoord['row'], 'col': curCoord['col'] - 1 },
@@ -63,15 +83,38 @@ def getForwardAdjacentCoords(curCoord, prevCoord):
 
   return adjCoords
 
+# Note: curCoord and prevCoord must be adjacent to each other!!
+def getForwardSurroundingCoords(curCoord, prevCoord):
+  if curCoord['row'] == prevCoord['row']: # Same row
+    colDiff = curCoord['col'] - prevCoord['col']
+    surrCoords = [
+      { 'row': curCoord['row'] - 1, 'col': curCoord['col'] },
+      { 'row': curCoord['row'] + 1, 'col': curCoord['col'] },
+      { 'row': curCoord['row'] - 1, 'col': curCoord['col'] + colDiff },
+      { 'row': curCoord['row'] + 1, 'col': curCoord['col'] + colDiff },
+      { 'row': curCoord['row'], 'col': curCoord['col'] + colDiff },
+    ]
+  else: # Same col
+    rowDiff = curCoord['row'] - prevCoord['row']
+    surrCoords = [
+      { 'row': curCoord['row'], 'col': curCoord['col'] - 1 },
+      { 'row': curCoord['row'], 'col': curCoord['col'] + 1 },
+      { 'row': curCoord['row'] + rowDiff, 'col': curCoord['col'] - 1 },
+      { 'row': curCoord['row'] + rowDiff, 'col': curCoord['col'] + 1 },
+      { 'row': curCoord['row'] + rowDiff, 'col': curCoord['col'] },
+    ]
+
+  return surrCoords
+
+
 def getCell(grid, coord):
   return grid[coord['row']][coord['col']]
 
-def setCell(grid, coord, cellValue):
-  grid[coord['row']][coord['col']] = cellValue
+def getCellValue(grid, coord):
+  return grid[coord['row']][coord['col']]['value']
 
-def printGrid(grid):
-  for row in grid:
-    print(row)
+def setCellValue(grid, coord, cellValue):
+  grid[coord['row']][coord['col']]['value'] = cellValue
 
 # Replaces all the CELL_NONE values in the grid with CELL_WALL
 def fillGridWalls(grid):
@@ -79,16 +122,16 @@ def fillGridWalls(grid):
   width = getGridWidth(grid)
   for row in range(height):
     for col in range(width):
-      if grid[row][col] == constants.CELL_NONE:
-        grid[row][col] = constants.CELL_WALL
+      if grid[row][col]['value'] == constants.CELL_NONE:
+        grid[row][col]['value'] = constants.CELL_WALL
 
 def setRandomPlayerCoord(grid):
   height = getGridHeight(grid)
   width = getGridWidth(grid)
   for row in range(height):
     for col in range(width):
-      if grid[row][col] == constants.CELL_PATH:
-        grid[row][col] = constants.CELL_START
+      if grid[row][col]['value'] == constants.CELL_PATH:
+        grid[row][col]['value'] = constants.CELL_START
         return
 
 tsTemplate = """
@@ -104,5 +147,9 @@ export const map: Map = {{
 def writeToTSFile(grid, outFile):
   height = getGridHeight(grid)
   width = getGridWidth(grid)
-  
-  outFile.write(tsTemplate.format(width, height, grid))
+  gridValues = list(map(
+      lambda row: list(map(
+        lambda cell: cell['value'], row
+      )), grid
+    ))
+  outFile.write(tsTemplate.format(width, height, gridValues))
