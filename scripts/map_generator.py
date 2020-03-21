@@ -4,6 +4,7 @@ from map_gen_helper import constants
 from map_gen_helper import debugger
 from map_gen_helper import frontier as frontierHelper
 from map_gen_helper import general
+from map_gen_helper.path import PathStrategy, shouldSetPath
 
 # Parsing inputs and input validation
 print('-------------------------')
@@ -36,29 +37,18 @@ frontierHelper.expandFrontier(grid, frontier, endCell)
 while frontier:
   # Selection strategy: Take randomly from the currently expanded frontier
   i = random.randrange(0, len(frontier))
-  cell = frontier[i]
-  coord = cell['curCoord']
+  curCell = frontier[i]
+  curCoord = curCell['curCoord']
   frontier.pop(i)
 
-  if cell['type'] != constants.CELL_NONE: continue
+  if curCell['type'] != constants.CELL_NONE: continue
 
   # Path set strategy
-  prevCoord = cell['prevCoord']
-  if prevCoord['row'] != -1:
-    surrCoords = general.getForwardSurroundingCoords(coord, prevCoord)
-    discard = False
-    for coordA in surrCoords:
-      if general.isOnOrOutOfBounds(coordA, width, height):
-        continue
-      elif general.getCellType(grid, coordA) == constants.CELL_PATH:
-        discard = True
-        break
+  if shouldSetPath(grid, curCell, PathStrategy.NO_ADJ_PATHS):
+    general.setCellType(grid, curCoord, constants.CELL_PATH)
 
-    if discard: continue
-    general.setCellType(grid, coord, constants.CELL_PATH)
-
-  # Expand strategy
-  frontierHelper.expandFrontier(grid, frontier, cell)
+    # Expand strategy
+    frontierHelper.expandFrontier(grid, frontier, curCell)
 
 # Write grid to file
 general.fillGridWalls(grid)
