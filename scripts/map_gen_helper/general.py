@@ -8,15 +8,17 @@ def initialiseGrid(width, height):
     for col in range(height):
       gridRow.append(createCell(
         constants.CELL_NONE,
+        { 'row': row, 'col': col },
         { 'row': -1, 'col': -1 },
         -1,
       ))
     grid.append(gridRow)
   return grid
 
-def createCell(value, prevCoord, distToEnd):
+def createCell(type, curCoord, prevCoord, distToEnd):
   return {
-    'value': value,
+    'type': type,
+    'curCoord': curCoord,
     'prevCoord': prevCoord,
     'distToEnd': distToEnd,
   }
@@ -110,11 +112,14 @@ def getForwardSurroundingCoords(curCoord, prevCoord):
 def getCell(grid, coord):
   return grid[coord['row']][coord['col']]
 
-def getCellValue(grid, coord):
-  return grid[coord['row']][coord['col']]['value']
+def getCellType(grid, coord):
+  return grid[coord['row']][coord['col']]['type']
 
-def setCellValue(grid, coord, cellValue):
-  grid[coord['row']][coord['col']]['value'] = cellValue
+def setCell(grid, coord, cell):
+  grid[coord['row']][coord['col']] = cell
+
+def setCellType(grid, coord, cellType):
+  grid[coord['row']][coord['col']]['type'] = cellType
 
 # Replaces all the CELL_NONE values in the grid with CELL_WALL
 def fillGridWalls(grid):
@@ -122,16 +127,16 @@ def fillGridWalls(grid):
   width = getGridWidth(grid)
   for row in range(height):
     for col in range(width):
-      if grid[row][col]['value'] == constants.CELL_NONE:
-        grid[row][col]['value'] = constants.CELL_WALL
+      if grid[row][col]['type'] == constants.CELL_NONE:
+        grid[row][col]['type'] = constants.CELL_WALL
 
 def setRandomPlayerCoord(grid):
   height = getGridHeight(grid)
   width = getGridWidth(grid)
   for row in range(height):
     for col in range(width):
-      if grid[row][col]['value'] == constants.CELL_PATH:
-        grid[row][col]['value'] = constants.CELL_START
+      if grid[row][col]['type'] == constants.CELL_PATH:
+        grid[row][col]['type'] = constants.CELL_START
         return
 
 tsTemplate = """
@@ -147,9 +152,9 @@ export const map: Map = {{
 def writeToTSFile(grid, outFile):
   height = getGridHeight(grid)
   width = getGridWidth(grid)
-  gridValues = list(map(
+  gridTypes = list(map(
       lambda row: list(map(
-        lambda cell: cell['value'], row
+        lambda cell: cell['type'], row
       )), grid
     ))
-  outFile.write(tsTemplate.format(width, height, gridValues))
+  outFile.write(tsTemplate.format(width, height, gridTypes))

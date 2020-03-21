@@ -21,25 +21,50 @@ grid = general.initialiseGrid(width, height)
 # Randomise a ending position along the side walls
 # but not the corners
 endCoord = general.generateRandomEnd(width, height)
-general.setCellValue(grid, endCoord, constants.CELL_END)
+endCell = {
+  'type': constants.CELL_END,
+  'curCoord': endCoord,
+  'prevCoord': { 'row': -1, 'col': -1 },
+  'distToEnd': 0,
+}
+general.setCell(grid, endCoord, endCell)
 
 # Stores a list of possible path cells that stems from a previous
 # path cell or end cell
 frontier = []
-frontierHelper.expandFrontier(grid, frontier, endCoord)
+frontierHelper.expandFrontier(grid, frontier, endCell)
 while frontier:
-  # Expand strategy: Take randomly from the currently expanded frontier
+  # Selection strategy: Take randomly from the currently expanded frontier
   i = random.randrange(0, len(frontier))
-  coord = frontier[i]
+  cell = frontier[i]
+  coord = cell['curCoord']
   frontier.pop(i)
-  if general.getCellValue(grid, coord) == constants.CELL_NONE:
-    general.setCellValue(grid, coord, constants.CELL_PATH)
-    frontierHelper.expandFrontier(grid, frontier, coord)
-  
+
+  if cell['type'] != constants.CELL_NONE: continue
+
+  # Path set strategy
+  prevCoord = cell['prevCoord']
+  if prevCoord['row'] != -1:
+    surrCoords = general.getForwardSurroundingCoords(coord, prevCoord)
+    discard = False
+    for coordA in surrCoords:
+      if general.isOnOrOutOfBounds(coordA, width, height):
+        continue
+      elif general.getCellType(grid, coordA) == constants.CELL_PATH:
+        discard = True
+        break
+
+    if discard: continue
+    general.setCellType(grid, coord, constants.CELL_PATH)
+
+  # Expand strategy
+  frontierHelper.expandFrontier(grid, frontier, cell)
+
 # Write grid to file
 general.fillGridWalls(grid)
 general.setRandomPlayerCoord(grid)
 outFile = open(os.path.join("src", "maps", "generated_map.ts"), "w")
 general.writeToTSFile(grid, outFile)
 outFile.close()
-debugger.printGrid(grid)
+
+# debugger.printGrid(grid)

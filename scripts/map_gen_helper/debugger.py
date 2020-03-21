@@ -1,8 +1,15 @@
 def printGrid(grid):
-  gridValues = list(map(
+  gridTypes = list(map(
       lambda row: list(map(
-        lambda cell: cell['value'], row
+        lambda cell: cell['type'], row
       )), grid
     ))
-  for row in gridValues:
+  for row in gridTypes:
     print(row)
+
+def printFrontier(frontier):
+  print("   Frontier   ")
+  print("--------------")
+  for cell in frontier:
+    print(cell)
+  print("--------------")
